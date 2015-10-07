@@ -76,6 +76,34 @@ class MasterViewController: UITableViewController {
 
     // MARK: Table View Controller
     
+    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        
+    }
+    
+    private func createTextField(delegate: OutlineTableViewCell) -> UITextField
+    {
+        let tf = UITextField(frame: CGRectMake(60, 0, 250, 44))
+        print(tf.frame)
+        tf.delegate = delegate
+        tf.contentHorizontalAlignment = .Right
+        tf.contentVerticalAlignment = .Center
+        return tf
+    }
+    
+    override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+        var renameAction = UITableViewRowAction(style: .Default, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
+            if let cell = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
+                let textField = self.createTextField(cell)
+                cell.outlineNameLabel?.hidden = true
+                cell.addSubview(textField)
+                textField.text = cell.outlineNameLabel?.text
+                textField.becomeFirstResponder()
+            }
+        })
+        
+        return [renameAction]
+    }
+    
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         self.selectRowAtIndexPath(indexPath)
     }

@@ -10,7 +10,7 @@ import UIKit
 
 class OutlineTableViewCell: UITableViewCell, UITextFieldDelegate {
     
-    @IBOutlet weak var outlineNameLabel: UITextField?
+    @IBOutlet weak var outlineNameLabel: UILabel?
 
     var outline: Outline? {
         didSet {
@@ -36,7 +36,10 @@ class OutlineTableViewCell: UITableViewCell, UITextFieldDelegate {
     func textFieldShouldEndEditing(textField: UITextField) -> Bool {
         if outline != nil {
             outline?.name = textField.text!
+            outlineNameLabel?.text = textField.text!
+            outlineNameLabel?.hidden = false
         }
+        textField.hidden = true
         return true
     }
     
