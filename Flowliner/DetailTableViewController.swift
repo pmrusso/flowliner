@@ -14,31 +14,32 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
     var outlineItems: [Item] = []
 
     
-    func countTotalItems(item: Item) -> Int{
-        var count: Int = 1
+    func getOrderedItemList(item: Item) -> [Item] {
+        var itemList = [item]
+        
         for i in item.children {
-            count += countTotalItems(i)
+            itemList += getOrderedItemList(i)
         }
         
-        return count
+        return itemList
     }
-    
-    func countOutlineItems() -> Int {
-        var count: Int = 0
-        for i in outlineItems {
-            count += countTotalItems(i)
-        }
-        
-        return count
-    }
-    
     
     func outlineSelected(outline: Outline) {
-        print("done this")
-        self.outlineItems = outline.items
+        var orderedItems = [Item]()
+        for i in outline.items {
+            orderedItems += getOrderedItemList(i)
+        }
         
         // TODO Change reload data to insert one at a time using depth-first approach
+        self.outlineItems = orderedItems
         tableView.reloadData()
+        
+        // Currently not working, gotta figure out why
+        /*for var index = 0; index < orderedItems.count; ++index {
+            self.outlineItems.append(orderedItems[index])
+            let indexPaths = [NSIndexPath(forRow: index, inSection: 0)]
+            tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Right)
+        }*/
     }
     
     override func viewDidLoad() {
@@ -67,18 +68,18 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        print(countOutlineItems())
-        return countOutlineItems()
+        print(self.outlineItems.count)
+        return outlineItems.count
     }
 
     
-    /*override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("itemCell", forIndexPath: indexPath) as! ItemTableViewCell
 
         // Configure the cell...
         cell.itemLabel!.text = outlineItems[indexPath.row].text
         return cell
-    }*/
+    }
     
 
     /*

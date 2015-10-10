@@ -20,7 +20,7 @@ class MasterViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul", items: [Item(text: "Item1"), Item(text: "Item2", filepath: nil, children: [Item(text: "Item3"), Item(text: "Item4")])])]
+        dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul", items: [Item(text: "Item1", filepath: nil, children: [Item(text: "Item5")]), Item(text: "Item2", filepath: nil, children: [Item(text: "Item3", filepath: nil, children: [Item(text: "Item6")]), Item(text: "Item4")])])]
         
         let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewOutline:")
         self.navigationItem.rightBarButtonItem = addButton
@@ -136,12 +136,12 @@ class MasterViewController: UITableViewController {
     }
     */
 
-    /*
+    
     // Override to support rearranging the table view.
     override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
 
     }
-    */
+    
 
     /*
     // Override to support conditional rearranging of the table view.
