@@ -13,9 +13,18 @@ class Outline: NSObject {
     var name: String
     var items: [Item]
     
-    init(name: String)
+    init(name: String, items: [Item]?)
     {
         self.name = name
-        items = [Item]()
+        if items != nil {
+            self.items = items!
+        }else {
+            self.items = [Item]()
+        }
+        super.init()
+    }
+    
+    convenience init (name: String){
+        self.init(name: name, items: nil)
     }
 }

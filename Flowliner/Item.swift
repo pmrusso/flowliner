@@ -13,7 +13,7 @@ class Item: NSObject {
     var filepath: String
     var children: [Item]
     
-    init(text: String, filepath: String?) {
+    init(text: String, filepath: String?, children: [Item]?) {
         self.text = text
         
         if filepath != nil {
@@ -22,11 +22,16 @@ class Item: NSObject {
             self.filepath = ""
         }
         
-        self.children = [Item]()
+        if children == nil {
+            self.children = [Item]()
+        }else {
+            self.children = children!
+        }
+        
         super.init()
     }
     
     convenience init(text:String){
-        self.init(text: text, filepath: nil)
+        self.init(text: text, filepath: nil, children: nil)
     }
 }

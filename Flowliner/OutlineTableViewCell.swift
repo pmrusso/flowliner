@@ -11,6 +11,7 @@ import UIKit
 class OutlineTableViewCell: UITableViewCell, UITextFieldDelegate {
     
     @IBOutlet weak var outlineNameLabel: UILabel?
+    @IBOutlet weak var outlineTextfield: UITextField?
 
     var outline: Outline? {
         didSet {

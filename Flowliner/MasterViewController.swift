@@ -8,14 +8,19 @@
 
 import UIKit
 
+protocol OutlineSelectionDelegate: class {
+    func outlineSelected(outline: Outline)
+}
+
 class MasterViewController: UITableViewController {
 
     @IBOutlet weak var dataSource: FlowlinerDataSource!
+    weak var delegate: OutlineSelectionDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul")]
+        dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul", items: [Item(text: "Item1"), Item(text: "Item2", filepath: nil, children: [Item(text: "Item3"), Item(text: "Item4")])])]
         
         let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewOutline:")
         self.navigationItem.rightBarButtonItem = addButton
@@ -29,7 +34,8 @@ class MasterViewController: UITableViewController {
     
     private func selectRowAtIndexPath(indexPath: NSIndexPath) {
         if let cell = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
-            // add stuff here
+            let selectedOutline = self.dataSource.outlines[indexPath.row]
+            self.delegate?.outlineSelected(selectedOutline)
         }
     }
     
@@ -93,11 +99,13 @@ class MasterViewController: UITableViewController {
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
         var renameAction = UITableViewRowAction(style: .Default, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
             if let cell = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
-                let textField = self.createTextField(cell)
+                //let textField = self.createTextField(cell)
                 cell.outlineNameLabel?.hidden = true
-                cell.addSubview(textField)
-                textField.text = cell.outlineNameLabel?.text
-                textField.becomeFirstResponder()
+                cell.outlineTextfield?.text = cell.outlineNameLabel?.text
+                cell.outlineTextfield?.hidden = false
+                //cell.addSubview(textField)
+                //textField.text = cell.outlineNameLabel?.text
+                cell.outlineTextfield?.becomeFirstResponder()
             }
         })
         

@@ -20,6 +20,8 @@
 		8F7A340D1BBC6544003DE8D2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8F7A340B1BBC6544003DE8D2 /* LaunchScreen.storyboard */; };
 		8F7A34181BBC6544003DE8D2 /* FlowlinerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7A34171BBC6544003DE8D2 /* FlowlinerTests.swift */; };
 		8F7A34231BBC6544003DE8D2 /* FlowlinerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7A34221BBC6544003DE8D2 /* FlowlinerUITests.swift */; };
+		8FEBBA3E1BC913F2008E7248 /* DetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FEBBA3D1BC913F2008E7248 /* DetailTableViewController.swift */; settings = {ASSET_TAGS = (); }; };
+		8FEBBA401BC921CD008E7248 /* ItemTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FEBBA3F1BC921CD008E7248 /* ItemTableViewCell.swift */; settings = {ASSET_TAGS = (); }; };
 		8FFC9E2D1BC44F32001413D3 /* OutlineTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FFC9E2C1BC44F32001413D3 /* OutlineTableViewCell.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
@@ -60,6 +62,8 @@
 		8F7A341E1BBC6544003DE8D2 /* FlowlinerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlowlinerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F7A34221BBC6544003DE8D2 /* FlowlinerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowlinerUITests.swift; sourceTree = "<group>"; };
 		8F7A34241BBC6544003DE8D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8FEBBA3D1BC913F2008E7248 /* DetailTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailTableViewController.swift; sourceTree = "<group>"; };
+		8FEBBA3F1BC921CD008E7248 /* ItemTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ItemTableViewCell.swift; sourceTree = "<group>"; };
 		8FFC9E2C1BC44F32001413D3 /* OutlineTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutlineTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -110,6 +114,7 @@
 			children = (
 				8F5673351BBD7F7E0038E12C /* MasterViewController.swift */,
 				8F5673371BBD810C0038E12C /* DetailViewController.swift */,
+				8FEBBA3D1BC913F2008E7248 /* DetailTableViewController.swift */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -182,6 +187,7 @@
 			isa = PBXGroup;
 			children = (
 				8FFC9E2C1BC44F32001413D3 /* OutlineTableViewCell.swift */,
+				8FEBBA3F1BC921CD008E7248 /* ItemTableViewCell.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -322,8 +328,10 @@
 				8FFC9E2D1BC44F32001413D3 /* OutlineTableViewCell.swift in Sources */,
 				8F14E6661BC283FC0079B280 /* FlowlinerDataSource.swift in Sources */,
 				8F0257701BC4341C00EED127 /* Item.swift in Sources */,
+				8FEBBA3E1BC913F2008E7248 /* DetailTableViewController.swift in Sources */,
 				8F02576E1BC433C000EED127 /* Outline.swift in Sources */,
 				8F7A34001BBC6544003DE8D2 /* AppDelegate.swift in Sources */,
+				8FEBBA401BC921CD008E7248 /* ItemTableViewCell.swift in Sources */,
 				8F7A34081BBC6544003DE8D2 /* Flowliner.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
