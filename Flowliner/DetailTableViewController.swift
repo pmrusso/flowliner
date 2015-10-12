@@ -11,11 +11,12 @@ import UIKit
 class DetailTableViewController: UITableViewController, OutlineSelectionDelegate {
 
     
-    var outlineItems: [Item] = []
-    var orderedOutlineItems: [Item] = []
+    //var outlineItems: [Item] = []
+    //var orderedOutlineItems: [Item] = []
     
     var itemViewModels: [ItemViewModel] = []
     var orderedViewModels: [ItemViewModel] = []
+    var visibleViewModels: [ItemViewModel] = []
     
     func getOrderedItemList(item: Item) -> [Item] {
         var itemList = [item]
@@ -37,6 +38,17 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
         return itemList
     }
     
+    func countChildren(item: ItemViewModel) -> Int{
+        var counter = 0
+        counter += item.children.count
+        
+        for c in item.children {
+            counter += countChildren(c)
+        }
+        
+        return counter
+    }
+    
     func getItemsViewModels(items: [Item]) -> [ItemViewModel]{
         var itemViewModelList = [ItemViewModel]()
         for i in items {
@@ -51,7 +63,7 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
         
         self.itemViewModels = self.getItemsViewModels(outline.items)
         
-        self.outlineItems = outline.items
+        //self.outlineItems = outline.items
         
         var orderedItems = [Item]()
         for i in outline.items {
@@ -64,8 +76,9 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
         }
         
         // TODO Change reload data to insert one at a time using depth-first approach
-        self.orderedOutlineItems = orderedItems
+        //self.orderedOutlineItems = orderedItems
         self.orderedViewModels = orderedItemViewModels
+        self.visibleViewModels = self.orderedViewModels
         tableView.reloadData()
         
         // Currently not working, gotta figure out why
@@ -82,12 +95,6 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
         let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewItem:")
         self.navigationItem.rightBarButtonItem = addButton
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
-        
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
 
     override func didReceiveMemoryWarning() {
@@ -102,7 +109,7 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return orderedOutlineItems.count
+        return visibleViewModels.count
     }
 
     
@@ -110,48 +117,10 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
         let cell = tableView.dequeueReusableCellWithIdentifier("itemCell", forIndexPath: indexPath) as! ItemTableViewCell
 
         // Configure the cell...
-        cell.itemLabel!.text = orderedOutlineItems[indexPath.row].text
+        cell.itemLabel!.text = visibleViewModels[indexPath.row].text
         return cell
     }
     
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-    
-    func removeItem(var itemList: [Item], itemToRemove: Item) -> Bool
-    {
-        var result = false
-        if itemList.contains(itemToRemove){
-            let index = itemList.indexOf(itemToRemove)
-            itemList.removeAtIndex(index!)
-            result = true
-        }else {
-            for i in itemList{
-                if removeItem(i.children, itemToRemove: itemToRemove){
-                    result = true
-                    break;
-                }
-            }
-        }
-        return result
-    }
     
     func removeItemViewModel(var itemList: [ItemViewModel], itemToRemove: ItemViewModel) -> Bool{
         var result = false
@@ -170,6 +139,35 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
         return result
     }
 
+    
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
+            var visibeItem = visibleViewModels[indexPath.row]
+            visibeItem.showChildren = !visibeItem.showChildren
+            
+            if (visibeItem.showChildren)
+            {
+                let counter = countChildren(visibeItem)
+                let startIndex = orderedViewModels.indexOf(visibeItem)
+                
+                var j = 1
+                
+                for var i = startIndex!+1; i <= startIndex!+counter; i++ {
+                    visibleViewModels.insert(orderedViewModels[i], atIndex: indexPath.row+j)
+                    j++
+                }
+                
+            }else {
+                let counter = countChildren(visibeItem)
+                if counter > 0
+                {
+                    visibleViewModels.removeRange(indexPath.row+1...indexPath.row+counter)
+                }
+            }
+            tableView.reloadData()
+        }
+    }
+    
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
         var renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
             if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
@@ -184,17 +182,15 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
             }
         })
         
-        
         var deleteAction = UITableViewRowAction(style: .Default, title: "Delete", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
             if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
-                let itemToRemove = self.orderedOutlineItems[indexPath.row]
-                let itemvmToRemove = self.orderedViewModels[indexPath.row]
+                let itemvmToRemove = self.visibleViewModels[indexPath.row]
                 
+                self.removeItemViewModel(self.orderedViewModels, itemToRemove: itemvmToRemove)
                 self.removeItemViewModel(self.itemViewModels, itemToRemove: itemvmToRemove)
-                self.removeItem(self.outlineItems, itemToRemove: itemToRemove)
                 
-                self.orderedViewModels.removeAtIndex(indexPath.row)
-                self.orderedOutlineItems.removeAtIndex(indexPath.row)
+                self.visibleViewModels.removeAtIndex(indexPath.row)
+
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
             }
         })
@@ -204,9 +200,9 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
     
     // Override to support rearranging the table view.
     override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-        let movedItem = self.orderedOutlineItems[fromIndexPath.row]
-        self.orderedOutlineItems.removeAtIndex(fromIndexPath.row)
-        self.orderedOutlineItems.insert(movedItem, atIndex: toIndexPath.row)
+        let movedItem = self.visibleViewModels[fromIndexPath.row]
+        self.visibleViewModels.removeAtIndex(fromIndexPath.row)
+        self.visibleViewModels.insert(movedItem, atIndex: toIndexPath.row)
     }
     
 

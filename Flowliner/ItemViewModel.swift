@@ -27,6 +27,6 @@ class ItemViewModel: NSObject {
     }
     
     convenience init(item: Item) {
-        self.init(text: item.text, children: nil, showChildren: false)
+        self.init(text: item.text, children: nil, showChildren: true)
     }
 }
