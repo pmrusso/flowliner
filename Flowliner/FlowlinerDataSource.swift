@@ -37,5 +37,21 @@ class FlowlinerDataSource: NSObject, UITableViewDataSource {
         return cell
     }
 
+    // Override to support rearranging the table view.
+    
+    func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
+        let movedOutline = self.outlines[sourceIndexPath.row]
+        self.outlines.removeAtIndex(sourceIndexPath.row)
+        self.outlines.insert(movedOutline, atIndex: destinationIndexPath.row)
+    }
+    
+    
+    
+    // Override to support conditional rearranging of the table view.
+    func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        // Return false if you do not want the item to be re-orderable.
+        return true
+    }
+
     
 }

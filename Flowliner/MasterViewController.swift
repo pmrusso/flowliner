@@ -20,11 +20,15 @@ class MasterViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul", items: [Item(text: "Item1", filepath: nil, children: [Item(text: "Item5")]), Item(text: "Item2", filepath: nil, children: [Item(text: "Item3", filepath: nil, children: [Item(text: "Item6")]), Item(text: "Item4")])])]
+        
+        
+        dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul", items: [Item(text: "Item1", filepath: nil, children: [Item(text: "Item2")]), Item(text: "Item3", filepath: nil, children: [Item(text: "Item4", filepath: nil, children: [Item(text: "Item5")]), Item(text: "Item6")])])]
+        
         
         let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewOutline:")
         self.navigationItem.rightBarButtonItem = addButton
-     
+        self.navigationItem.leftBarButtonItem = self.editButtonItem()
+        
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -62,29 +66,18 @@ class MasterViewController: UITableViewController {
         // #warning Incomplete implementation, return the number of sections
         return 1
     }
-
-  /*  override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 10
-    }
-
-    
-    
-    
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
-
-        // Configure the cell...
-
-        return cell
-    }*/
     
 
     // MARK: Table View Controller
     
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        
+    
+    /*override func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
+        return .None
     }
+    
+    override func tableView(tableView: UITableView, shouldIndentWhileEditingRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return false
+    }*/
     
     private func createTextField(delegate: OutlineTableViewCell) -> UITextField
     {
@@ -97,7 +90,7 @@ class MasterViewController: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
-        var renameAction = UITableViewRowAction(style: .Default, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
+        var renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
             if let cell = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
                 //let textField = self.createTextField(cell)
                 cell.outlineNameLabel?.hidden = true
@@ -106,23 +99,34 @@ class MasterViewController: UITableViewController {
                 //cell.addSubview(textField)
                 //textField.text = cell.outlineNameLabel?.text
                 cell.outlineTextfield?.becomeFirstResponder()
+                
+                /*
+                 * TODO: Maybe use a popup instead of a textfield...
+                 */
             }
         })
         
-        return [renameAction]
+        var deleteAction = UITableViewRowAction(style: .Default, title: "Delete", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
+            if let cell = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
+                self.dataSource.outlines.removeAtIndex(indexPath.row)
+                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+            }
+        })
+        
+        return [renameAction,deleteAction]
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         self.selectRowAtIndexPath(indexPath)
     }
     
-    /*
+    
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         // Return false if you do not want the specified item to be editable.
         return true
     }
-    */
+    
 
     /*
     // Override to support editing the table view.
@@ -133,23 +137,11 @@ class MasterViewController: UITableViewController {
         } else if editingStyle == .Insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
-    }
-    */
-
-    
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
+    }*/
     
 
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
+    
+       
 
     /*
     // MARK: - Navigation
