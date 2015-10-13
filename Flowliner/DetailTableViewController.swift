@@ -10,15 +10,11 @@ import UIKit
 
 class DetailTableViewController: UITableViewController, OutlineSelectionDelegate {
 
-    
-    //var outlineItems: [Item] = []
-    //var orderedOutlineItems: [Item] = []
-    
     var itemViewModels: [ItemViewModel] = []
     var orderedViewModels: [ItemViewModel] = []
     var visibleViewModels: [ItemViewModel] = []
     
-    func getOrderedItemList(item: Item) -> [Item] {
+    private func getOrderedItemList(item: Item) -> [Item] {
         var itemList = [item]
         
         for i in item.children {
@@ -28,47 +24,95 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
         return itemList
     }
     
-    func getOrderedItemViewModelList(item: ItemViewModel) -> [ItemViewModel] {
+    private func getOrderedItemViewModelList(item: ItemViewModel) -> [ItemViewModel] {
         var itemList = [item]
         
         for i in item.children {
             itemList += getOrderedItemViewModelList(i)
         }
-        
         return itemList
     }
     
-    func countChildren(item: ItemViewModel) -> Int{
+    func countVisibleChildren(item: ItemViewModel) -> Int{
         var counter = 0
         counter += item.children.count
         
-        for c in item.children {
-            counter += countChildren(c)
+        if item.showChildren{
+            for c in item.children {
+                counter += countVisibleChildren(c)
+            }
         }
-        
         return counter
     }
     
-    func getItemsViewModels(items: [Item]) -> [ItemViewModel]{
+    
+    private func toggleVisibleItems(visibleItem: ItemViewModel, indexPath: NSIndexPath)
+    {
+        if !visibleItem.showChildren
+        {
+            var visibleItemsToRemoveList: [ItemViewModel] = getOrderedItemViewModelList(visibleItem)
+            visibleItemsToRemoveList.removeFirst()
+            
+            for i in visibleItemsToRemoveList {
+                if visibleViewModels.contains(i){
+                    let index = visibleViewModels.indexOf(i)
+                    let newIndexPath = NSIndexPath(forRow: index!, inSection: 0)
+                    visibleViewModels.removeAtIndex(index!)
+                    tableView.deleteRowsAtIndexPaths([newIndexPath], withRowAnimation: .Fade)
+                }
+            }
+        }else {
+            let counter = countVisibleChildren(visibleItem)
+            let startIndex = orderedViewModels.indexOf(visibleItem)
+            
+            var j = 1
+            
+            for var i = startIndex!+1; i <= startIndex!+counter; i++ {
+                visibleViewModels.insert(orderedViewModels[i], atIndex: indexPath.row+j)
+                let newIndexPath = NSIndexPath(forRow: indexPath.row+j, inSection: 0)
+                tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Fade)
+                if !orderedViewModels[i].showChildren {
+                    i += getOrderedItemViewModelList(orderedViewModels[i]).count-1
+                }
+                j++
+            }
+        }
+    }
+    
+    
+    private func removeItemViewModel(var itemList: [ItemViewModel], itemToRemove: ItemViewModel) -> Bool{
+        var result = false
+        if itemList.contains(itemToRemove){
+            let index = itemList.indexOf(itemToRemove)
+            itemList.removeAtIndex(index!)
+            result = true
+        }else {
+            for i in itemList{
+                if removeItemViewModel(i.children, itemToRemove: itemToRemove){
+                    result = true
+                    break;
+                }
+            }
+        }
+        return result
+    }
+
+    
+    private func getItemsViewModels(items: [Item]) -> [ItemViewModel]{
         var itemViewModelList = [ItemViewModel]()
         for i in items {
-            var itemvm = ItemViewModel(item: i)
+            let itemvm = ItemViewModel(item: i)
             itemvm.children = self.getItemsViewModels(i.children)
             itemViewModelList += [itemvm]
         }
         return itemViewModelList
     }
     
+    // MARK: OutlineSelectionDelegate
+    
     func outlineSelected(outline: Outline) {
         
         self.itemViewModels = self.getItemsViewModels(outline.items)
-        
-        //self.outlineItems = outline.items
-        
-        var orderedItems = [Item]()
-        for i in outline.items {
-            orderedItems += getOrderedItemList(i)
-        }
         
         var orderedItemViewModels = [ItemViewModel]()
         for i in self.itemViewModels {
@@ -87,6 +131,18 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
             let indexPaths = [NSIndexPath(forRow: index, inSection: 0)]
             tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Right)
         }*/
+    }
+    
+    func insertNewItem(sender: AnyObject){
+        var newItem = Item(text: "New Item")
+        var newItemViewModel = ItemViewModel(item: newItem)
+        self.itemViewModels.append(newItemViewModel)
+        self.orderedViewModels.append(newItemViewModel)
+        self.visibleViewModels.append(newItemViewModel)
+        
+        let index = self.visibleViewModels.count-1
+        let indexPaths = [NSIndexPath(forRow: index, inSection: 0)]
+        tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Left)
     }
     
     override func viewDidLoad() {
@@ -115,62 +171,27 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("itemCell", forIndexPath: indexPath) as! ItemTableViewCell
-
-        // Configure the cell...
-        cell.itemLabel!.text = visibleViewModels[indexPath.row].text
+        cell.item = visibleViewModels[indexPath.row]
+        //cell.itemLabel!.text = visibleViewModels[indexPath.row].text
         return cell
     }
     
     
-    func removeItemViewModel(var itemList: [ItemViewModel], itemToRemove: ItemViewModel) -> Bool{
-        var result = false
-        if itemList.contains(itemToRemove){
-            let index = itemList.indexOf(itemToRemove)
-            itemList.removeAtIndex(index!)
-            result = true
-        }else {
-            for i in itemList{
-                if removeItemViewModel(i.children, itemToRemove: itemToRemove){
-                    result = true
-                    break;
-                }
-            }
-        }
-        return result
-    }
-
+    
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
             var visibeItem = visibleViewModels[indexPath.row]
             visibeItem.showChildren = !visibeItem.showChildren
-            
-            if (visibeItem.showChildren)
-            {
-                let counter = countChildren(visibeItem)
-                let startIndex = orderedViewModels.indexOf(visibeItem)
-                
-                var j = 1
-                
-                for var i = startIndex!+1; i <= startIndex!+counter; i++ {
-                    visibleViewModels.insert(orderedViewModels[i], atIndex: indexPath.row+j)
-                    j++
-                }
-                
-            }else {
-                let counter = countChildren(visibeItem)
-                if counter > 0
-                {
-                    visibleViewModels.removeRange(indexPath.row+1...indexPath.row+counter)
-                }
-            }
-            tableView.reloadData()
+            self.toggleVisibleItems(visibeItem, indexPath: indexPath)
         }
     }
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
         var renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
             if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
+                
+                
                 cell.itemLabel?.hidden = true
                 cell.itemTextfield?.text = cell.itemLabel?.text
                 cell.itemTextfield?.hidden = false

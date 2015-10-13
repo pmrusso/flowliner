@@ -18,8 +18,7 @@ class MasterViewController: UITableViewController {
     weak var delegate: OutlineSelectionDelegate?
     
     override func viewDidLoad() {
-        super.viewDidLoad()
-        
+        super.viewDidLoad()        
         
         
         dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul", items: [Item(text: "Item1", filepath: nil, children: [Item(text: "Item2")]), Item(text: "Item3", filepath: nil, children: [Item(text: "Item4", filepath: nil, children: [Item(text: "Item5")]), Item(text: "Item6")])])]

@@ -14,9 +14,9 @@ class ItemTableViewCell: UITableViewCell, UITextFieldDelegate {
     @IBOutlet weak var itemTextfield: UITextField?
     
     
-    var item: Outline? {
+    var item: ItemViewModel? {
         didSet {
-            itemLabel?.text = item!.name
+            itemLabel?.text = item!.text
         }
     }
     
@@ -35,7 +35,7 @@ class ItemTableViewCell: UITableViewCell, UITextFieldDelegate {
     
     func textFieldShouldEndEditing(textField: UITextField) -> Bool {
         if item != nil {
-            item?.name = textField.text!
+            item?.text = textField.text!
             itemLabel?.text = textField.text!
             itemLabel?.hidden = false
         }

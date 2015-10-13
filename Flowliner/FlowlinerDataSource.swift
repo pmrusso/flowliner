@@ -32,8 +32,6 @@ class FlowlinerDataSource: NSObject, UITableViewDataSource {
         
         cell.outline = outlines[indexPath.row]
         
-        // Configure the cell...
-        
         return cell
     }
 
