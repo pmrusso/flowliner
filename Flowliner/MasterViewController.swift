@@ -20,6 +20,8 @@ class MasterViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()        
         
+        let longpress = UILongPressGestureRecognizer(target: self, action: "longPressGestureRecognized:")
+        tableView.addGestureRecognizer(longpress)
         
         dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul", items: [Item(text: "Item1", filepath: nil, children: [Item(text: "Item2")]), Item(text: "Item3", filepath: nil, children: [Item(text: "Item4", filepath: nil, children: [Item(text: "Item5")]), Item(text: "Item6")])])]
         
@@ -30,6 +32,11 @@ class MasterViewController: UITableViewController {
         
     }
     
+    func longPressGestureRecognized(gestureRecognizer: UIGestureRecognizer){
+        GestureHandlers.moveOutlineCells(dataSource, tableView: tableView, gestureRecognizer: gestureRecognizer)
+    }
+    
+        
     private func selectRowAtIndexPath(indexPath: NSIndexPath) {
         if let cell = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
             let selectedOutline = self.dataSource.outlines[indexPath.row]
@@ -91,9 +98,12 @@ class MasterViewController: UITableViewController {
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         self.selectRowAtIndexPath(indexPath)
+        if let detailViewController = self.delegate as? DetailTableViewController {
+            splitViewController?.showDetailViewController(detailViewController, sender: nil)
+     }
     }
     
-    
+        
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         return true

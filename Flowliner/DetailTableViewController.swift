@@ -145,12 +145,19 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
         tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Left)
     }
     
+    func longPressGestureRecognized(gestureRecognizer: UIGestureRecognizer){
+        GestureHandlers.moveItemCells(self, tableView: tableView, gestureRecognizer: gestureRecognizer)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let longpress = UILongPressGestureRecognizer(target: self, action: "longPressGestureRecognized:")
+        tableView.addGestureRecognizer(longpress)
+        
         let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewItem:")
         self.navigationItem.rightBarButtonItem = addButton
-        self.navigationItem.leftBarButtonItem = self.editButtonItem()
+        //self.navigationItem.leftBarButtonItem = self.editButtonItem()
     }
 
     override func didReceiveMemoryWarning() {
@@ -177,7 +184,10 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
     }
     
     
-    
+    override func tableView(tableView: UITableView, targetIndexPathForMoveFromRowAtIndexPath sourceIndexPath: NSIndexPath, toProposedIndexPath proposedDestinationIndexPath: NSIndexPath) -> NSIndexPath {
+        print(proposedDestinationIndexPath.row)
+        return proposedDestinationIndexPath
+    }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {

@@ -13,10 +13,12 @@ class Item: NSObject {
     var filepath: String
     var children: [Item]
     
+    
+    
     init(text: String, filepath: String?, children: [Item]?) {
         self.text = text
         
-        if filepath != nil {
+           if filepath != nil {
             self.filepath = filepath!
         }else {
             self.filepath = ""
