@@ -20,13 +20,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let splitViewController = self.window?.rootViewController as! UISplitViewController
         let leftNavController = splitViewController.viewControllers.first as! UINavigationController
-        let masterViewController = leftNavController.topViewController as! MasterViewController
+        let masterViewController = leftNavController.topViewController as! OutlineTableViewController
         let detailViewController = splitViewController.viewControllers.last as! UINavigationController
         
         //let firstOutline = masterViewController.dataSource.outlines.first
         //detailViewController.outlineItems = (firstOutline?.items)!
         
-        masterViewController.delegate = detailViewController.visibleViewController as! DetailTableViewController
+        masterViewController.delegate = detailViewController.visibleViewController as! ItemTableViewController
         return true
     }
 

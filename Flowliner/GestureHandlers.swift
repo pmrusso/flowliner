@@ -37,8 +37,8 @@ class GestureHandlers: NSObject {
     static func moveOutlineCells (dataSource: FlowlinerDataSource, tableView: UITableView, gestureRecognizer: UIGestureRecognizer) {
         let longPress = gestureRecognizer as! UILongPressGestureRecognizer
         let state = longPress.state
-        var locationInView = longPress.locationInView(tableView)
-        var indexPath = tableView.indexPathForRowAtPoint(locationInView)
+        let locationInView = longPress.locationInView(tableView)
+        let indexPath = tableView.indexPathForRowAtPoint(locationInView)
         
         switch state{
         case UIGestureRecognizerState.Began:
@@ -97,11 +97,11 @@ class GestureHandlers: NSObject {
 
     }
     
-    static func moveItemCells (detailViewController: DetailTableViewController, tableView: UITableView, gestureRecognizer: UIGestureRecognizer) {
+    static func moveItemCells (detailViewController: ItemTableViewController, tableView: UITableView, gestureRecognizer: UIGestureRecognizer) {
         let longPress = gestureRecognizer as! UILongPressGestureRecognizer
         let state = longPress.state
-        var locationInView = longPress.locationInView(tableView)
-        var indexPath = tableView.indexPathForRowAtPoint(locationInView)
+        let locationInView = longPress.locationInView(tableView)
+        let indexPath = tableView.indexPathForRowAtPoint(locationInView)
         
         switch state{
         case UIGestureRecognizerState.Began:

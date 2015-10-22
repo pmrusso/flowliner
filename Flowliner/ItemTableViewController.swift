@@ -8,7 +8,7 @@
 
 import UIKit
 
-class DetailTableViewController: UITableViewController, OutlineSelectionDelegate {
+class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
 
     var itemViewModels: [ItemViewModel] = []
     var orderedViewModels: [ItemViewModel] = []
@@ -134,8 +134,8 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
     }
     
     func insertNewItem(sender: AnyObject){
-        var newItem = Item(text: "New Item")
-        var newItemViewModel = ItemViewModel(item: newItem)
+        let newItem = Item(text: "New Item")
+        let newItemViewModel = ItemViewModel(item: newItem)
         self.itemViewModels.append(newItemViewModel)
         self.orderedViewModels.append(newItemViewModel)
         self.visibleViewModels.append(newItemViewModel)
@@ -190,15 +190,15 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
-            var visibeItem = visibleViewModels[indexPath.row]
+        if let _ = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
+            let visibeItem = visibleViewModels[indexPath.row]
             visibeItem.showChildren = !visibeItem.showChildren
             self.toggleVisibleItems(visibeItem, indexPath: indexPath)
         }
     }
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
-        var renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
+        let renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
             if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
                 
                 
@@ -213,8 +213,8 @@ class DetailTableViewController: UITableViewController, OutlineSelectionDelegate
             }
         })
         
-        var deleteAction = UITableViewRowAction(style: .Default, title: "Delete", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
-            if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
+        let deleteAction = UITableViewRowAction(style: .Default, title: "Delete", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
+            if let _ = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
                 let itemvmToRemove = self.visibleViewModels[indexPath.row]
                 
                 self.removeItemViewModel(self.orderedViewModels, itemToRemove: itemvmToRemove)

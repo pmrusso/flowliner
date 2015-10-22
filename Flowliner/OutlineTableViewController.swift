@@ -12,7 +12,7 @@ protocol OutlineSelectionDelegate: class {
     func outlineSelected(outline: Outline)
 }
 
-class MasterViewController: UITableViewController {
+class OutlineTableViewController: UITableViewController {
 
     @IBOutlet weak var dataSource: FlowlinerDataSource!
     weak var delegate: OutlineSelectionDelegate?
@@ -38,7 +38,7 @@ class MasterViewController: UITableViewController {
     
         
     private func selectRowAtIndexPath(indexPath: NSIndexPath) {
-        if let cell = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
+        if let _ = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
             let selectedOutline = self.dataSource.outlines[indexPath.row]
             self.delegate?.outlineSelected(selectedOutline)
         }
@@ -51,12 +51,6 @@ class MasterViewController: UITableViewController {
         let index = dataSource.outlines.count-1
         let indexPaths = [NSIndexPath(forRow: index, inSection: 0)]
         tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Left)
-    }
-
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
 
@@ -73,7 +67,7 @@ class MasterViewController: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
-        var renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
+        let renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
             if let cell = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
                 cell.outlineNameLabel?.hidden = true
                 cell.outlineTextfield?.text = cell.outlineNameLabel?.text
@@ -86,8 +80,8 @@ class MasterViewController: UITableViewController {
             }
         })
         
-        var deleteAction = UITableViewRowAction(style: .Default, title: "Delete", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
-            if let cell = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
+        let deleteAction = UITableViewRowAction(style: .Default, title: "Delete", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
+            if let _ = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
                 self.dataSource.outlines.removeAtIndex(indexPath.row)
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
             }
@@ -98,7 +92,7 @@ class MasterViewController: UITableViewController {
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         self.selectRowAtIndexPath(indexPath)
-        if let detailViewController = self.delegate as? DetailTableViewController {
+        if let detailViewController = self.delegate as? ItemTableViewController {
             splitViewController?.showDetailViewController(detailViewController, sender: nil)
      }
     }
