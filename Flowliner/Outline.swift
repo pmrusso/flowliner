@@ -16,11 +16,7 @@ class Outline: NSObject {
     init(name: String, items: [Item]?)
     {
         self.name = name
-        if items != nil {
-            self.items = items!
-        }else {
-            self.items = [Item]()
-        }
+        self.items = items ?? [Item]()        
         super.init()
     }
     

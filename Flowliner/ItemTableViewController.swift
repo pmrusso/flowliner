@@ -15,36 +15,29 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
     var visibleViewModels: [ItemViewModel] = []
     
     private func getOrderedItemList(item: Item) -> [Item] {
-        var itemList = [item]
-        
-        for i in item.children {
-            itemList += getOrderedItemList(i)
-        }
-        
-        return itemList
+        return item.children.map(getOrderedItemList).reduce([item], combine: +)
     }
     
     private func getOrderedItemViewModelList(item: ItemViewModel) -> [ItemViewModel] {
-        var itemList = [item]
-        
-        for i in item.children {
-            itemList += getOrderedItemViewModelList(i)
-        }
-        return itemList
+        return item.children.map(getOrderedItemViewModelList).reduce([item], combine: +)
     }
     
     func countVisibleChildren(item: ItemViewModel) -> Int{
-        var counter = 0
-        counter += item.children.count
-        
-        if item.showChildren{
-            for c in item.children {
-                counter += countVisibleChildren(c)
-            }
+        if item.showChildren {
+            return item.children.map(countVisibleChildren).reduce(item.children.count, combine: +)
+        }else {
+            return item.children.count
         }
-        return counter
     }
     
+    private func removeVisibleItem(item: ItemViewModel){
+        if visibleViewModels.contains(item){
+            let index = visibleViewModels.indexOf(item)
+            let newIndexPath = NSIndexPath(forRow: index!, inSection: 0)
+            visibleViewModels.removeAtIndex(index!)
+            tableView.deleteRowsAtIndexPaths([newIndexPath], withRowAnimation: .Fade)
+        }
+    }
     
     private func toggleVisibleItems(visibleItem: ItemViewModel, indexPath: NSIndexPath)
     {
@@ -52,15 +45,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         {
             var visibleItemsToRemoveList: [ItemViewModel] = getOrderedItemViewModelList(visibleItem)
             visibleItemsToRemoveList.removeFirst()
-            
-            for i in visibleItemsToRemoveList {
-                if visibleViewModels.contains(i){
-                    let index = visibleViewModels.indexOf(i)
-                    let newIndexPath = NSIndexPath(forRow: index!, inSection: 0)
-                    visibleViewModels.removeAtIndex(index!)
-                    tableView.deleteRowsAtIndexPaths([newIndexPath], withRowAnimation: .Fade)
-                }
-            }
+            let _ = visibleItemsToRemoveList.map(removeVisibleItem)
         }else {
             let counter = countVisibleChildren(visibleItem)
             let startIndex = orderedViewModels.indexOf(visibleItem)
@@ -98,21 +83,22 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
     }
 
     
-    private func getItemsViewModels(items: [Item]) -> [ItemViewModel]{
+    private func getItemsViewModels(items: [Item], level: Int) -> [ItemViewModel]{
         var itemViewModelList = [ItemViewModel]()
         for i in items {
-            let itemvm = ItemViewModel(item: i)
-            itemvm.children = self.getItemsViewModels(i.children)
+            let itemvm = ItemViewModel(item: i, level: level)
+            itemvm.children = self.getItemsViewModels(i.children, level: level+1)
             itemViewModelList += [itemvm]
         }
         return itemViewModelList
+        
     }
     
     // MARK: OutlineSelectionDelegate
     
     func outlineSelected(outline: Outline) {
         
-        self.itemViewModels = self.getItemsViewModels(outline.items)
+        self.itemViewModels = self.getItemsViewModels(outline.items, level: 0)
         
         var orderedItemViewModels = [ItemViewModel]()
         for i in self.itemViewModels {
@@ -135,7 +121,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
     
     func insertNewItem(sender: AnyObject){
         let newItem = Item(text: "New Item")
-        let newItemViewModel = ItemViewModel(item: newItem)
+        let newItemViewModel = ItemViewModel(item: newItem, level: 0)
         self.itemViewModels.append(newItemViewModel)
         self.orderedViewModels.append(newItemViewModel)
         self.visibleViewModels.append(newItemViewModel)
@@ -160,11 +146,6 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         //self.navigationItem.leftBarButtonItem = self.editButtonItem()
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
     // MARK: - Table view data source
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -179,6 +160,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("itemCell", forIndexPath: indexPath) as! ItemTableViewCell
         cell.item = visibleViewModels[indexPath.row]
+        cell.bounds = CGRectMake(-CGFloat((cell.item?.level)!*20), cell.bounds.minY, cell.bounds.width, cell.bounds.height)
         //cell.itemLabel!.text = visibleViewModels[indexPath.row].text
         return cell
     }

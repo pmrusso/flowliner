@@ -10,23 +10,20 @@ import UIKit
 
 class ItemViewModel: NSObject {
     var text: String
+    var level: Int
     var children: [ItemViewModel]
     var showChildren: Bool
     
-    init(text: String, children: [ItemViewModel]?, showChildren: Bool)
+    init(text: String, level: Int, children: [ItemViewModel]?, showChildren: Bool)
     {
         self.text = text
-        
-        if children == nil {
-            self.children = []
-        }else {
-            self.children = children!
-        }
+        self.level = level
+        self.children = children ?? []
         self.showChildren = showChildren
         super.init()
     }
     
-    convenience init(item: Item) {
-        self.init(text: item.text, children: nil, showChildren: true)
+    convenience init(item: Item, level: Int) {
+        self.init(text: item.text, level: level, children: nil, showChildren: true)
     }
 }

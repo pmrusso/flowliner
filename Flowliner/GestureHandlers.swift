@@ -10,6 +10,10 @@ import UIKit
 
 class GestureHandlers: NSObject {
     
+    private static var cellSnapshot: UIView? = nil
+    
+    private static var initialIndexPath: NSIndexPath? = nil
+    
     static func snapshotOfCell(inputView: UIView) -> UIView {
         UIGraphicsBeginImageContextWithOptions(inputView.bounds.size, false, 0.0)
         inputView.layer.renderInContext(UIGraphicsGetCurrentContext()!)
@@ -24,14 +28,6 @@ class GestureHandlers: NSObject {
         cellSnapshot.layer.shadowOpacity = 0.4
         return cellSnapshot
     }
-    
-    struct My {
-        static var cellSnapshot: UIView? = nil
-    }
-    
-    struct Path {
-        static var initialIndexPath: NSIndexPath? = nil
-    }
 
 
     static func moveOutlineCells (dataSource: FlowlinerDataSource, tableView: UITableView, gestureRecognizer: UIGestureRecognizer) {
@@ -43,22 +39,22 @@ class GestureHandlers: NSObject {
         switch state{
         case UIGestureRecognizerState.Began:
             if  indexPath != nil {
-                Path.initialIndexPath = indexPath
+                self.initialIndexPath = indexPath
                 let cell = tableView.cellForRowAtIndexPath(indexPath!) as! OutlineTableViewCell
-                My.cellSnapshot = snapshotOfCell(cell)
+                self.cellSnapshot = snapshotOfCell(cell)
                 var center = cell.center
                 
-                My.cellSnapshot!.center = center
-                My.cellSnapshot!.alpha = 0.0
-                tableView.addSubview(My.cellSnapshot!)
+                self.cellSnapshot!.center = center
+                self.cellSnapshot!.alpha = 0.0
+                tableView.addSubview(self.cellSnapshot!)
                 
-                UIView.animateWithDuration(0.25, animations: {() -> Void
-                    in center.y = locationInView.y
-                    My.cellSnapshot!.center = center
-                    My.cellSnapshot!.transform = CGAffineTransformMakeScale(1.05, 1.05)
-                    My.cellSnapshot!.alpha = 0.98
+                UIView.animateWithDuration(0.25, animations: {() in
+                    center.y = locationInView.y
+                    self.cellSnapshot!.center = center
+                    self.cellSnapshot!.transform = CGAffineTransformMakeScale(1.05, 1.05)
+                    self.cellSnapshot!.alpha = 0.98
                     cell.alpha = 0.0
-                    }, completion: {(finished) -> Void in
+                    }, completion: { finished in
                         if finished {
                             cell.hidden = true
                         }
@@ -66,30 +62,30 @@ class GestureHandlers: NSObject {
             }
             break
         case UIGestureRecognizerState.Changed:
-            var center = My.cellSnapshot!.center
+            var center = self.cellSnapshot!.center
             center.y = locationInView.y
-            My.cellSnapshot!.center = center
+            self.cellSnapshot!.center = center
             
-            if ((indexPath != nil) && (indexPath != Path.initialIndexPath)) {
-                swap(&dataSource.outlines[indexPath!.row], &dataSource.outlines[Path.initialIndexPath!.row])
-                tableView.moveRowAtIndexPath(Path.initialIndexPath!, toIndexPath: indexPath!)
-                Path.initialIndexPath = indexPath
+            if ((indexPath != nil) && (indexPath != self.initialIndexPath)) {
+                swap(&dataSource.outlines[indexPath!.row], &dataSource.outlines[self.initialIndexPath!.row])
+                tableView.moveRowAtIndexPath(self.initialIndexPath!, toIndexPath: indexPath!)
+                self.initialIndexPath = indexPath
             }
             break
         default:
-            let cell = tableView.cellForRowAtIndexPath(Path.initialIndexPath!) as! OutlineTableViewCell
+            let cell = tableView.cellForRowAtIndexPath(self.initialIndexPath!) as! OutlineTableViewCell
             cell.hidden = false
             cell.alpha = 0.0
-            UIView.animateWithDuration(0.25, animations: { () -> Void in
-                My.cellSnapshot!.center = cell.center
-                My.cellSnapshot!.transform = CGAffineTransformIdentity
-                My.cellSnapshot!.alpha = 0.0
+            UIView.animateWithDuration(0.25, animations: { () in
+                self.cellSnapshot!.center = cell.center
+                self.cellSnapshot!.transform = CGAffineTransformIdentity
+                self.cellSnapshot!.alpha = 0.0
                 cell.alpha = 1.0
-                }, completion: { (finished) -> Void in
+                }, completion: { finished in
                     if finished {
-                        Path.initialIndexPath = nil
-                        My.cellSnapshot!.removeFromSuperview()
-                        My.cellSnapshot = nil
+                        self.initialIndexPath = nil
+                        self.cellSnapshot!.removeFromSuperview()
+                        self.cellSnapshot = nil
                     }
             })
             break
@@ -106,22 +102,22 @@ class GestureHandlers: NSObject {
         switch state{
         case UIGestureRecognizerState.Began:
             if  indexPath != nil {
-                Path.initialIndexPath = indexPath
+                self.initialIndexPath = indexPath
                 let cell = tableView.cellForRowAtIndexPath(indexPath!) as! ItemTableViewCell
-                My.cellSnapshot = snapshotOfCell(cell)
+                self.cellSnapshot = snapshotOfCell(cell)
                 var center = cell.center
                 
-                My.cellSnapshot!.center = center
-                My.cellSnapshot!.alpha = 0.0
-                tableView.addSubview(My.cellSnapshot!)
+                self.cellSnapshot!.center = center
+                self.cellSnapshot!.alpha = 0.0
+                tableView.addSubview(self.cellSnapshot!)
                 
-                UIView.animateWithDuration(0.25, animations: {() -> Void
-                    in center.y = locationInView.y
-                    My.cellSnapshot!.center = center
-                    My.cellSnapshot!.transform = CGAffineTransformMakeScale(1.05, 1.05)
-                    My.cellSnapshot!.alpha = 0.98
+                UIView.animateWithDuration(0.25, animations: {() in
+                    center.y = locationInView.y
+                    self.cellSnapshot!.center = center
+                    self.cellSnapshot!.transform = CGAffineTransformMakeScale(1.05, 1.05)
+                    self.cellSnapshot!.alpha = 0.98
                     cell.alpha = 0.0
-                    }, completion: {(finished) -> Void in
+                    }, completion: {finished in
                         if finished {
                             cell.hidden = true
                         }
@@ -129,30 +125,30 @@ class GestureHandlers: NSObject {
             }
             break
         case UIGestureRecognizerState.Changed:
-            var center = My.cellSnapshot!.center
+            var center = self.cellSnapshot!.center
             center.y = locationInView.y
-            My.cellSnapshot!.center = center
+            self.cellSnapshot!.center = center
             
-            if ((indexPath != nil) && (indexPath != Path.initialIndexPath)) {
-                swap(&detailViewController.visibleViewModels[indexPath!.row], &detailViewController.visibleViewModels[Path.initialIndexPath!.row])
-                tableView.moveRowAtIndexPath(Path.initialIndexPath!, toIndexPath: indexPath!)
-                Path.initialIndexPath = indexPath
+            if ((indexPath != nil) && (indexPath != self.initialIndexPath)) {
+                swap(&detailViewController.visibleViewModels[indexPath!.row], &detailViewController.visibleViewModels[self.initialIndexPath!.row])
+                tableView.moveRowAtIndexPath(self.initialIndexPath!, toIndexPath: indexPath!)
+                self.initialIndexPath = indexPath
             }
             break
         default:
-            let cell = tableView.cellForRowAtIndexPath(Path.initialIndexPath!) as! ItemTableViewCell
+            let cell = tableView.cellForRowAtIndexPath(self.initialIndexPath!) as! ItemTableViewCell
             cell.hidden = false
             cell.alpha = 0.0
-            UIView.animateWithDuration(0.25, animations: { () -> Void in
-                My.cellSnapshot!.center = cell.center
-                My.cellSnapshot!.transform = CGAffineTransformIdentity
-                My.cellSnapshot!.alpha = 0.0
+            UIView.animateWithDuration(0.25, animations: { () in
+                self.cellSnapshot!.center = cell.center
+                self.cellSnapshot!.transform = CGAffineTransformIdentity
+                self.cellSnapshot!.alpha = 0.0
                 cell.alpha = 1.0
-                }, completion: { (finished) -> Void in
+                }, completion: { finished in
                     if finished {
-                        Path.initialIndexPath = nil
-                        My.cellSnapshot!.removeFromSuperview()
-                        My.cellSnapshot = nil
+                        self.initialIndexPath = nil
+                        self.cellSnapshot!.removeFromSuperview()
+                        self.cellSnapshot = nil
                     }
             })
             break

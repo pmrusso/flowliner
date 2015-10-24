@@ -20,25 +20,16 @@ class ItemTableViewCell: UITableViewCell, UITextFieldDelegate {
         }
     }
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
-
-    override func setSelected(selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
-    
     // MARK: - Table Field Delegate
     
     func textFieldShouldEndEditing(textField: UITextField) -> Bool {
-        if item != nil {
-            item?.text = textField.text!
-            itemLabel?.text = textField.text!
-            itemLabel?.hidden = false
+        guard let _ = item else {
+            return false
         }
+        
+        item?.text = textField.text!
+        itemLabel?.text = textField.text!
+        itemLabel?.hidden = false
         textField.hidden = true
         return true
     }

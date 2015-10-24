@@ -17,19 +17,8 @@ class Item: NSObject {
     
     init(text: String, filepath: String?, children: [Item]?) {
         self.text = text
-        
-           if filepath != nil {
-            self.filepath = filepath!
-        }else {
-            self.filepath = ""
-        }
-        
-        if children == nil {
-            self.children = [Item]()
-        }else {
-            self.children = children!
-        }
-        
+        self.filepath = filepath ?? ""
+        self.children = children ?? [Item]()        
         super.init()
     }
     

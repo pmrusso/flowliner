@@ -20,26 +20,16 @@ class OutlineTableViewCell: UITableViewCell, UITextFieldDelegate {
     }
     
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
-
-    override func setSelected(selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
-    
-    
     // MARK: - Table Field Delegate
     
-    func textFieldShouldEndEditing(textField: UITextField) -> Bool {
-        if outline != nil {
-            outline?.name = textField.text!
-            outlineNameLabel?.text = textField.text!
-            outlineNameLabel?.hidden = false
+    func textFieldShouldEndEditing(textField: UITextField) -> Bool {        
+        guard let _ = outline else {
+            return false
         }
+        
+        outline?.name = textField.text!
+        outlineNameLabel?.text = textField.text!
+        outlineNameLabel?.hidden = false
         textField.hidden = true
         return true
     }

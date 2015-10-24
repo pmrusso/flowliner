@@ -13,7 +13,6 @@
 		8F5673361BBD7F7E0038E12C /* OutlineTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F5673351BBD7F7E0038E12C /* OutlineTableViewController.swift */; settings = {ASSET_TAGS = (); }; };
 		8F5CFE881BCC38930053DED6 /* ItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F5CFE871BCC38920053DED6 /* ItemViewModel.swift */; settings = {ASSET_TAGS = (); }; };
 		8F7A34001BBC6544003DE8D2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7A33FF1BBC6544003DE8D2 /* AppDelegate.swift */; };
-		8F7A34021BBC6544003DE8D2 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7A34011BBC6544003DE8D2 /* ViewController.swift */; };
 		8F7A34051BBC6544003DE8D2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8F7A34031BBC6544003DE8D2 /* Main.storyboard */; };
 		8F7A34081BBC6544003DE8D2 /* Flowliner.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8F7A34061BBC6544003DE8D2 /* Flowliner.xcdatamodeld */; };
 		8F7A340A1BBC6544003DE8D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F7A34091BBC6544003DE8D2 /* Assets.xcassets */; };
@@ -51,7 +50,6 @@
 		8F5CFE871BCC38920053DED6 /* ItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ItemViewModel.swift; sourceTree = "<group>"; };
 		8F7A33FC1BBC6543003DE8D2 /* Flowliner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Flowliner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F7A33FF1BBC6544003DE8D2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		8F7A34011BBC6544003DE8D2 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		8F7A34041BBC6544003DE8D2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8F7A34071BBC6544003DE8D2 /* Flowliner.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Flowliner.xcdatamodel; sourceTree = "<group>"; };
 		8F7A34091BBC6544003DE8D2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -150,7 +148,6 @@
 				8F14E6631BC282BA0079B280 /* Data Sources */,
 				8F5673321BBD7F170038E12C /* View Controllers */,
 				8F7A33FF1BBC6544003DE8D2 /* AppDelegate.swift */,
-				8F7A34011BBC6544003DE8D2 /* ViewController.swift */,
 				8F7A34031BBC6544003DE8D2 /* Main.storyboard */,
 				8F7A34091BBC6544003DE8D2 /* Assets.xcassets */,
 				8F7A340B1BBC6544003DE8D2 /* LaunchScreen.storyboard */,
@@ -335,7 +332,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8F5673361BBD7F7E0038E12C /* OutlineTableViewController.swift in Sources */,
-				8F7A34021BBC6544003DE8D2 /* ViewController.swift in Sources */,
 				8FFC9E2D1BC44F32001413D3 /* OutlineTableViewCell.swift in Sources */,
 				8F5CFE881BCC38930053DED6 /* ItemViewModel.swift in Sources */,
 				8FFD86E61BD5746200889E24 /* GestureHandlers.swift in Sources */,
