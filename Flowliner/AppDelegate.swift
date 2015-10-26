@@ -23,10 +23,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let masterViewController = leftNavController.topViewController as! OutlineTableViewController
         let detailViewController = splitViewController.viewControllers.last as! UINavigationController
         
-        //let firstOutline = masterViewController.dataSource.outlines.first
-        //detailViewController.outlineItems = (firstOutline?.items)!
         
         masterViewController.delegate = detailViewController.visibleViewController as! ItemTableViewController
+        
+        
+        masterViewController.dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul", items: [Item(text: "Item1", filepath: nil, children: [Item(text: "Item2")]), Item(text: "Item3", filepath: nil, children: [Item(text: "Item4", filepath: nil, children: [Item(text: "Item5")]), Item(text: "Item6")])])]
+        
+        let firstOutline = masterViewController.dataSource.outlines.first
+        masterViewController.delegate?.outlineSelected(firstOutline!)
+        splitViewController.delegate = masterViewController
+        
         return true
     }
 

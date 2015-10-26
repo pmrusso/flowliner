@@ -12,6 +12,7 @@ class ItemTableViewCell: UITableViewCell, UITextFieldDelegate {
 
     @IBOutlet weak var itemLabel: UILabel?
     @IBOutlet weak var itemTextfield: UITextField?
+    @IBOutlet weak var toggleButton: UIButton?
     
     
     var item: ItemViewModel? {

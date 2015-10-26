@@ -98,6 +98,8 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
     
     func outlineSelected(outline: Outline) {
         
+        self.navigationItem.title = outline.name
+        
         self.itemViewModels = self.getItemsViewModels(outline.items, level: 0)
         
         var orderedItemViewModels = [ItemViewModel]()
@@ -145,6 +147,24 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         self.navigationItem.rightBarButtonItem = addButton
         //self.navigationItem.leftBarButtonItem = self.editButtonItem()
     }
+    
+    func toggleItemVisibility(indexPath: NSIndexPath){
+        if let _ = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
+            let visibeItem = visibleViewModels[indexPath.row]
+            visibeItem.showChildren = !visibeItem.showChildren
+            self.toggleVisibleItems(visibeItem, indexPath: indexPath)
+        }
+    }
+    
+    @IBAction func toggleChildren(sender: UIButton){
+        let cell = sender.superview?.superview as! ItemTableViewCell
+        let showChildren = cell.item?.showChildren
+        sender.transform = showChildren! ? CGAffineTransformMakeRotation(CGFloat(M_PI_2)) : CGAffineTransformMakeRotation(CGFloat(0))
+        let index = visibleViewModels.indexOf(cell.item!)
+        let indexPath = NSIndexPath(forRow: index!, inSection: 0)
+        
+        toggleItemVisibility(indexPath)
+    }
 
     // MARK: - Table view data source
 
@@ -166,18 +186,15 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
     }
     
     
+    
     override func tableView(tableView: UITableView, targetIndexPathForMoveFromRowAtIndexPath sourceIndexPath: NSIndexPath, toProposedIndexPath proposedDestinationIndexPath: NSIndexPath) -> NSIndexPath {
         print(proposedDestinationIndexPath.row)
         return proposedDestinationIndexPath
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        if let _ = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
-            let visibeItem = visibleViewModels[indexPath.row]
-            visibeItem.showChildren = !visibeItem.showChildren
-            self.toggleVisibleItems(visibeItem, indexPath: indexPath)
-        }
-    }
+    /*override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        self.toggleItemVisibility(indexPath)
+    }*/
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
         let renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
@@ -213,6 +230,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
     
     // Override to support rearranging the table view.
     override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
+        print("move")
         let movedItem = self.visibleViewModels[fromIndexPath.row]
         self.visibleViewModels.removeAtIndex(fromIndexPath.row)
         self.visibleViewModels.insert(movedItem, atIndex: toIndexPath.row)

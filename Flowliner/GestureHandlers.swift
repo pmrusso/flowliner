@@ -101,6 +101,7 @@ class GestureHandlers: NSObject {
         
         switch state{
         case UIGestureRecognizerState.Began:
+            print("began")
             if  indexPath != nil {
                 self.initialIndexPath = indexPath
                 let cell = tableView.cellForRowAtIndexPath(indexPath!) as! ItemTableViewCell
@@ -125,9 +126,14 @@ class GestureHandlers: NSObject {
             }
             break
         case UIGestureRecognizerState.Changed:
+            print("changed")
             var center = self.cellSnapshot!.center
             center.y = locationInView.y
             self.cellSnapshot!.center = center
+           
+            /* 
+             * TODO: Place here the code to see if it is a child or a brother
+             */
             
             if ((indexPath != nil) && (indexPath != self.initialIndexPath)) {
                 swap(&detailViewController.visibleViewModels[indexPath!.row], &detailViewController.visibleViewModels[self.initialIndexPath!.row])
@@ -136,6 +142,7 @@ class GestureHandlers: NSObject {
             }
             break
         default:
+            print("default")
             let cell = tableView.cellForRowAtIndexPath(self.initialIndexPath!) as! ItemTableViewCell
             cell.hidden = false
             cell.alpha = 0.0

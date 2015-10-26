@@ -12,7 +12,7 @@ protocol OutlineSelectionDelegate: class {
     func outlineSelected(outline: Outline)
 }
 
-class OutlineTableViewController: UITableViewController {
+class OutlineTableViewController: UITableViewController, UISplitViewControllerDelegate {
 
     @IBOutlet weak var dataSource: FlowlinerDataSource!
     weak var delegate: OutlineSelectionDelegate?
@@ -23,10 +23,10 @@ class OutlineTableViewController: UITableViewController {
         let longpress = UILongPressGestureRecognizer(target: self, action: "longPressGestureRecognized:")
         tableView.addGestureRecognizer(longpress)
         
-        dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul", items: [Item(text: "Item1", filepath: nil, children: [Item(text: "Item2")]), Item(text: "Item3", filepath: nil, children: [Item(text: "Item4", filepath: nil, children: [Item(text: "Item5")]), Item(text: "Item6")])])]
         
         
-        let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewOutline:")
+        
+        let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addNewOutline:")
         self.navigationItem.rightBarButtonItem = addButton
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
         
@@ -45,7 +45,7 @@ class OutlineTableViewController: UITableViewController {
     }
     
     
-    func insertNewOutline(sender: AnyObject){
+    func addNewOutline(sender: AnyObject){
         let newoutline = Outline(name: "New Oultine")
         dataSource.outlines.append(newoutline)
         let index = dataSource.outlines.count-1
@@ -93,7 +93,7 @@ class OutlineTableViewController: UITableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         self.selectRowAtIndexPath(indexPath)
         if let detailViewController = self.delegate as? ItemTableViewController {
-            splitViewController?.showDetailViewController(detailViewController, sender: nil)
+            splitViewController?.showDetailViewController(detailViewController.navigationController!, sender: nil)
      }
     }
     
@@ -105,14 +105,21 @@ class OutlineTableViewController: UITableViewController {
        
        
 
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
+        
     }
-    */
+    
+    // MARK: UISplitViewControllerDelegate
+    
+    func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController: UIViewController, ontoPrimaryViewController primaryViewController: UIViewController) -> Bool {
+        return true
+    }
+    
 
 }
