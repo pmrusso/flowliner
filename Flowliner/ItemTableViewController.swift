@@ -190,11 +190,14 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         return visibleViewModels.count
     }
 
+    func configureCellIdentation(cell: ItemTableViewCell) {
+        cell.bounds = CGRectMake(-CGFloat((cell.item?.level)!*20), cell.bounds.minY, cell.bounds.width, cell.bounds.height)
+    }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("itemCell", forIndexPath: indexPath) as! ItemTableViewCell
         cell.item = visibleViewModels[indexPath.row]
-        cell.bounds = CGRectMake(-CGFloat((cell.item?.level)!*20), cell.bounds.minY, cell.bounds.width, cell.bounds.height)
+        configureCellIdentation(cell)
         self.rotateButton(!(cell.item?.showChildren)!, sender: cell.toggleButton!)
         return cell
     }
@@ -243,13 +246,16 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
     }
     
     // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
+    /*override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
         print("move")
         let movedItem = self.visibleViewModels[fromIndexPath.row]
         self.visibleViewModels.removeAtIndex(fromIndexPath.row)
         self.visibleViewModels.insert(movedItem, atIndex: toIndexPath.row)
-    }
+    }*/
     
+    override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
+        print("move 2")
+    }
 
     /*
     // Override to support conditional rearranging of the table view.
