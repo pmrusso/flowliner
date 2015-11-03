@@ -14,6 +14,14 @@ class GestureHandlers: NSObject {
     
     private static var initialIndexPath: NSIndexPath? = nil
     
+    private static var originalCellColor: UIColor? = nil
+    
+    private static var targetCell: ItemTableViewCell? = nil
+    
+    private static var previousIndexPath: NSIndexPath? = nil
+    
+    private static var canBeParent: Bool = false
+    
     static func snapshotOfCell(inputView: UIView) -> UIView {
         UIGraphicsBeginImageContextWithOptions(inputView.bounds.size, false, 0.0)
         inputView.layer.renderInContext(UIGraphicsGetCurrentContext()!)
@@ -99,10 +107,24 @@ class GestureHandlers: NSObject {
         let locationInView = longPress.locationInView(tableView)
         let indexPath = tableView.indexPathForRowAtPoint(locationInView)
         
+        
+        
+        guard (indexPath != nil) else {
+            return }
+        
+        let cell = tableView.cellForRowAtIndexPath(indexPath!)
+        let centerDistance = abs(locationInView.y - cell!.center.y)
+
+        
         switch state{
         case UIGestureRecognizerState.Began:
-            print("began")
             if  indexPath != nil {
+                
+                originalCellColor = cell?.backgroundColor
+                targetCell = (cell as! ItemTableViewCell)
+                
+                detailViewController.toggleItemVisibility(indexPath!)
+                
                 self.initialIndexPath = indexPath
                 let cell = tableView.cellForRowAtIndexPath(indexPath!) as! ItemTableViewCell
                 self.cellSnapshot = snapshotOfCell(cell)
@@ -126,23 +148,73 @@ class GestureHandlers: NSObject {
             }
             break
         case UIGestureRecognizerState.Changed:
-            print("changed")
             var center = self.cellSnapshot!.center
             center.y = locationInView.y
             self.cellSnapshot!.center = center
+            
            
             /* 
              * TODO: Place here the code to see if it is a child or a brother
              */
             
             if ((indexPath != nil) && (indexPath != self.initialIndexPath)) {
+                
+                
+                self.targetCell?.backgroundColor = self.originalCellColor
+                self.targetCell = (cell as! ItemTableViewCell)
+                cell?.backgroundColor = UIColor.orangeColor()
+                canBeParent = true
+                
+                if  centerDistance < 5 {
+                    
+                
+                    let orderedInitialIndex = detailViewController.orderedViewModels.indexOf(detailViewController.visibleViewModels[self.initialIndexPath!.row]);
+                    let orderedFinalIndex = detailViewController.orderedViewModels.indexOf(detailViewController.visibleViewModels[indexPath!.row]);
+                    
                 swap(&detailViewController.visibleViewModels[indexPath!.row], &detailViewController.visibleViewModels[self.initialIndexPath!.row])
+                    
+                /*
+                 * Swap the item and all it's children
+                 */
+                let childrenList = detailViewController.orderedViewModels[orderedInitialIndex!].children
+                swap(&detailViewController.orderedViewModels[orderedFinalIndex!], &detailViewController.orderedViewModels[orderedInitialIndex!])
+                
+                 var i = 1
+                   
+                    
+                    for _ in  childrenList{
+                        
+                        if orderedFinalIndex!+i >= detailViewController.orderedViewModels.count {
+                            let itemToMove = detailViewController.orderedViewModels.removeAtIndex(orderedInitialIndex!+i)
+                            detailViewController.orderedViewModels.append(itemToMove)
+                        }else{
+                        
+                        swap(&detailViewController.orderedViewModels[orderedFinalIndex!+i], &detailViewController.orderedViewModels[orderedInitialIndex!+i])
+                        }
+                            i++;
+                    }
+                    
+                
+                    
                 tableView.moveRowAtIndexPath(self.initialIndexPath!, toIndexPath: indexPath!)
+                
+                self.previousIndexPath = self.initialIndexPath
                 self.initialIndexPath = indexPath
+                canBeParent = false
+                    
+                }else {
+                    // Show some highlight of the cell
+                  
+                }
+                
+            }else {
+                targetCell?.backgroundColor = originalCellColor
             }
             break
         default:
-            print("default")
+            
+            targetCell?.backgroundColor = originalCellColor
+            
             let cell = tableView.cellForRowAtIndexPath(self.initialIndexPath!) as! ItemTableViewCell
             cell.hidden = false
             cell.alpha = 0.0
@@ -158,10 +230,153 @@ class GestureHandlers: NSObject {
                         self.cellSnapshot = nil
                     }
             })
-            break
-        }
-        
-    }
+            // Check if I have to switch the item from one parent to another
+            
 
+            if (indexPath != nil) && (indexPath != self.initialIndexPath) {
+            
+               let distanceToTarget = abs(abs(locationInView.y - targetCell!.center.y))
+             
+            
+            if canBeParent {
+                print("canBeParent")
+                // Make child of target Cell
+                let targetIndex = detailViewController.orderedViewModels.indexOf((targetCell?.item!)!)
+                
+                
+                /*
+                 * Testing block
+                 */
+                let itemViewModel = detailViewController.visibleViewModels[(initialIndexPath?.row)!]
+                
+                var parent: ItemViewModel?
+                
+                for i in detailViewController.orderedViewModels{
+                    if i.children.contains(itemViewModel) {
+                        parent = i
+                        break
+                    }
+                }
+                
+                if parent != nil {
+                
+                let parentIndex = detailViewController.orderedViewModels.indexOf(parent!)
+                let itemChildrenIndex = detailViewController.orderedViewModels[parentIndex!].children.indexOf(itemViewModel)
+                detailViewController.orderedViewModels[parentIndex!].children.removeAtIndex(itemChildrenIndex!)
+                }
+                
+                detailViewController.visibleViewModels[indexPath!.row].children.insert(itemViewModel, atIndex: 0)
+                
+                /*
+                 * TODO: Do this to all it's children, try recursive
+                 */
+                detailViewController.visibleViewModels[indexPath!.row+1].level = detailViewController.visibleViewModels[indexPath!.row].level + 1
+                //detailViewController.orderedViewModels[targetIndex!].children.append((targetCell?.item)!)
+                
+                canBeParent = false
+                
+                detailViewController.buildOrderedViewModels()
+                /*
+                 * END Testing block
+                 */
+                
+                
+            }else {
+               print("n sei o q fazer aqui")
+            }
+            
+            
+            }else {
+                print("Cannot be parent")
+                // Make child of target Cell
+                let targetIndex = detailViewController.orderedViewModels.indexOf((targetCell?.item!)!)
+                
+                
+                /*
+                * Testing block
+                */
+                let itemViewModel = detailViewController.visibleViewModels[(initialIndexPath?.row)!]
+                
+                var parent: ItemViewModel?
+                
+                for i in detailViewController.orderedViewModels{
+                    if i.children.contains(itemViewModel) {
+                        parent = i
+                        break
+                    }
+                }
+                
+                if parent != nil {
+                    
+                    let parentIndex = detailViewController.orderedViewModels.indexOf(parent!)
+                    let itemChildrenIndex = detailViewController.orderedViewModels[parentIndex!].children.indexOf(itemViewModel)
+                    detailViewController.orderedViewModels[parentIndex!].children.removeAtIndex(itemChildrenIndex!)
+                }else {
+                    let itemIndex = detailViewController.itemViewModels.indexOf(itemViewModel)
+                    detailViewController.itemViewModels.removeAtIndex(itemIndex!)
+                }
+                
+                
+                if (initialIndexPath?.row)!-1 < 0 {
+                    detailViewController.itemViewModels.insert(itemViewModel, atIndex: 0)
+                }else if (initialIndexPath?.row)!+1 >= detailViewController.visibleViewModels.count {
+                    detailViewController.itemViewModels.append(itemViewModel)
+                }else {
+                
+                
+                let itemViewModel1: ItemViewModel = detailViewController.visibleViewModels[(initialIndexPath?.row)!-1]
+                let itemViewModel2: ItemViewModel = detailViewController.visibleViewModels[(initialIndexPath?.row)!+1]
+                
+                var parent1: ItemViewModel?
+                var parent2: ItemViewModel?
+                
+                
+                
+                for i in detailViewController.orderedViewModels{
+                    if i.children.contains(itemViewModel1) {
+                        parent1 = i
+                        break
+                    }
+                }
+                for i in detailViewController.orderedViewModels{
+                    if i.children.contains(itemViewModel2) {
+                        parent2 = i
+                        break
+                    }
+                }
+
+                
+                if (parent1 == nil && parent2 == nil) {
+                    //let lowIndex = detailViewController.itemViewModels.indexOf(itemViewModel1)
+                    let highIndex = detailViewController.itemViewModels.indexOf(itemViewModel2)
+                    detailViewController.itemViewModels.insert(itemViewModel, atIndex: highIndex!)
+                }else if parent1 != parent2 {
+                    let index = parent2?.children.indexOf(itemViewModel2)
+                    parent2?.children.insert(itemViewModel, atIndex: index!)
+                }else {
+                    parent1?.children.append(itemViewModel)
+                }
+                    
+                canBeParent = false
+                
+                
+                /*
+                * END Testing block
+                */
+
+                
+                //detailViewController.toggleItemVisibility(indexPath!)
+                print(indexPath?.row)
+                print(initialIndexPath?.row)
+                print("somethin")
+                print(targetCell)
+            }
+            detailViewController.buildOrderedViewModels()
+            break
+    }
+            
+}
+        
     
+    }
 }

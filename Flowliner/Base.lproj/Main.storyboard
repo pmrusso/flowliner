@@ -22,7 +22,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <textField hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="oUl-Ml-6P9">
-                                            <rect key="frame" x="8" y="7" width="311" height="30"/>
+                                            <rect key="frame" x="40" y="8" width="311" height="30"/>
                                             <animations/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                             <textInputTraits key="textInputTraits"/>
@@ -30,21 +30,21 @@
                                                 <outlet property="delegate" destination="Vga-gA-zii" id="teu-RQ-vjD"/>
                                             </connections>
                                         </textField>
+                                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BZF-Vq-P9u">
+                                            <rect key="frame" x="8" y="11" width="29" height="22"/>
+                                            <animations/>
+                                            <state key="normal" title="&gt;"/>
+                                            <connections>
+                                                <action selector="toggleChildren:" destination="aZ2-Ch-Iwk" eventType="touchUpInside" id="sqG-RG-S9V"/>
+                                            </connections>
+                                        </button>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QRJ-nF-qP8">
-                                            <rect key="frame" x="17" y="11" width="246" height="21"/>
+                                            <rect key="frame" x="40" y="12" width="311" height="21"/>
                                             <animations/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BZF-Vq-P9u">
-                                            <rect key="frame" x="339" y="10" width="58" height="22"/>
-                                            <animations/>
-                                            <state key="normal" title="Button"/>
-                                            <connections>
-                                                <action selector="toggleChildren:" destination="aZ2-Ch-Iwk" eventType="touchUpInside" id="sqG-RG-S9V"/>
-                                            </connections>
-                                        </button>
                                     </subviews>
                                     <animations/>
                                 </tableViewCellContentView>

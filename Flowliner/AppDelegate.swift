@@ -27,7 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         masterViewController.delegate = detailViewController.visibleViewController as! ItemTableViewController
         
         
-        masterViewController.dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul", items: [Item(text: "Item1", filepath: nil, children: [Item(text: "Item2")]), Item(text: "Item3", filepath: nil, children: [Item(text: "Item4", filepath: nil, children: [Item(text: "Item5")]), Item(text: "Item6")])])]
+        masterViewController.dataSource.outlines += [Outline(name: "Mike"), Outline(name:"Paul", items: [Item(text: "Item1", filepath: nil, children: [Item(text: "Item2")]), Item(text: "Item3", filepath: nil, children: [Item(text: "Item4", filepath: nil, children: [Item(text: "Item5")]), Item(text: "Item6", filepath: nil, children: [Item(text:"Item7")])])])]
         
         let firstOutline = masterViewController.dataSource.outlines.first
         masterViewController.delegate?.outlineSelected(firstOutline!)

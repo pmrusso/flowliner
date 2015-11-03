@@ -96,12 +96,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
     
     // MARK: OutlineSelectionDelegate
     
-    func outlineSelected(outline: Outline) {
-        
-        self.navigationItem.title = outline.name
-        
-        self.itemViewModels = self.getItemsViewModels(outline.items, level: 0)
-        
+    func buildOrderedViewModels() {
         var orderedItemViewModels = [ItemViewModel]()
         for i in self.itemViewModels {
             orderedItemViewModels += getOrderedItemViewModelList(i)
@@ -110,6 +105,17 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         // TODO Change reload data to insert one at a time using depth-first approach
         //self.orderedOutlineItems = orderedItems
         self.orderedViewModels = orderedItemViewModels
+        
+
+    }
+    
+    func outlineSelected(outline: Outline) {
+        
+        self.navigationItem.title = outline.name
+        
+        self.itemViewModels = self.getItemsViewModels(outline.items, level: 0)
+        
+        self.buildOrderedViewModels()
         self.visibleViewModels = self.orderedViewModels
         tableView.reloadData()
         
@@ -156,10 +162,18 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         }
     }
     
+    func rotateButton(showChildren: Bool, sender: UIButton){
+        
+        sender.transform = !showChildren ? CGAffineTransformMakeRotation(CGFloat(M_PI_2)) : CGAffineTransformMakeRotation(CGFloat(0))
+    }
+    
     @IBAction func toggleChildren(sender: UIButton){
+        
         let cell = sender.superview?.superview as! ItemTableViewCell
         let showChildren = cell.item?.showChildren
-        sender.transform = showChildren! ? CGAffineTransformMakeRotation(CGFloat(M_PI_2)) : CGAffineTransformMakeRotation(CGFloat(0))
+        
+        rotateButton(showChildren!, sender: sender)
+        
         let index = visibleViewModels.indexOf(cell.item!)
         let indexPath = NSIndexPath(forRow: index!, inSection: 0)
         
@@ -181,7 +195,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         let cell = tableView.dequeueReusableCellWithIdentifier("itemCell", forIndexPath: indexPath) as! ItemTableViewCell
         cell.item = visibleViewModels[indexPath.row]
         cell.bounds = CGRectMake(-CGFloat((cell.item?.level)!*20), cell.bounds.minY, cell.bounds.width, cell.bounds.height)
-        //cell.itemLabel!.text = visibleViewModels[indexPath.row].text
+        self.rotateButton(!(cell.item?.showChildren)!, sender: cell.toggleButton!)
         return cell
     }
     
