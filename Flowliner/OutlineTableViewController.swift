@@ -67,7 +67,7 @@ class OutlineTableViewController: UITableViewController, UISplitViewControllerDe
     }
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
-        let renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
+        let renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) in
             if let cell = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
                 cell.outlineNameLabel?.hidden = true
                 cell.outlineTextfield?.text = cell.outlineNameLabel?.text
@@ -80,7 +80,7 @@ class OutlineTableViewController: UITableViewController, UISplitViewControllerDe
             }
         })
         
-        let deleteAction = UITableViewRowAction(style: .Default, title: "Delete", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
+        let deleteAction = UITableViewRowAction(style: .Default, title: "Delete", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) in
             if let _ = tableView.cellForRowAtIndexPath(indexPath) as! OutlineTableViewCell? {
                 self.dataSource.outlines.removeAtIndex(indexPath.row)
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)

@@ -26,7 +26,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         if item.showChildren {
             return item.children.map(countVisibleChildren).reduce(item.children.count, combine: +)
         }else {
-            return item.children.count
+            return 0
         }
     }
     
@@ -52,14 +52,17 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
             
             var j = 1
             
-            for var i = startIndex!+1; i <= startIndex!+counter; i++ {
-                visibleViewModels.insert(orderedViewModels[i], atIndex: indexPath.row+j)
+            var orderedIndex = startIndex!+1
+            
+            for var i = startIndex!+1; i <= startIndex!+counter; i++, j++, orderedIndex++ {
+                visibleViewModels.insert(orderedViewModels[orderedIndex], atIndex: indexPath.row+j)
                 let newIndexPath = NSIndexPath(forRow: indexPath.row+j, inSection: 0)
                 tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Fade)
-                if !orderedViewModels[i].showChildren {
-                    i += getOrderedItemViewModelList(orderedViewModels[i]).count-1
+                if !orderedViewModels[orderedIndex].showChildren {
+                    orderedIndex += getOrderedItemViewModelList(orderedViewModels[orderedIndex]).count-1
                 }
-                j++
+                /*j++
+                orderedIndex++*/
             }
         }
     }
@@ -214,7 +217,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
     }*/
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
-        let renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
+        let renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) in
             if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
                 
                 
@@ -229,7 +232,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
             }
         })
         
-        let deleteAction = UITableViewRowAction(style: .Default, title: "Delete", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) -> Void in
+        let deleteAction = UITableViewRowAction(style: .Default, title: "Delete", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) in
             if let _ = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
                 let itemvmToRemove = self.visibleViewModels[indexPath.row]
                 

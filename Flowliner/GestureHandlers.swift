@@ -18,10 +18,6 @@ class GestureHandlers: NSObject {
     
     private static var targetCell: ItemTableViewCell? = nil
     
-    private static var previousIndexPath: NSIndexPath? = nil
-    
-    private static var canBeParent: Bool = false
-    
     static func snapshotOfCell(inputView: UIView) -> UIView {
         UIGraphicsBeginImageContextWithOptions(inputView.bounds.size, false, 0.0)
         inputView.layer.renderInContext(UIGraphicsGetCurrentContext()!)
@@ -43,6 +39,8 @@ class GestureHandlers: NSObject {
         let state = longPress.state
         let locationInView = longPress.locationInView(tableView)
         let indexPath = tableView.indexPathForRowAtPoint(locationInView)
+        
+        
         
         switch state{
         case UIGestureRecognizerState.Began:
@@ -70,6 +68,11 @@ class GestureHandlers: NSObject {
             }
             break
         case UIGestureRecognizerState.Changed:
+            
+            if (self.cellSnapshot == nil){
+                break
+            }
+            
             var center = self.cellSnapshot!.center
             center.y = locationInView.y
             self.cellSnapshot!.center = center
@@ -81,6 +84,11 @@ class GestureHandlers: NSObject {
             }
             break
         default:
+            
+            if (self.cellSnapshot == nil){
+                break
+            }
+            
             let cell = tableView.cellForRowAtIndexPath(self.initialIndexPath!) as! OutlineTableViewCell
             cell.hidden = false
             cell.alpha = 0.0
@@ -105,29 +113,21 @@ class GestureHandlers: NSObject {
         let longPress = gestureRecognizer as! UILongPressGestureRecognizer
         let state = longPress.state
         let locationInView = longPress.locationInView(tableView)
-        let indexPath = tableView.indexPathForRowAtPoint(locationInView)
-        
-        
-        
-        guard (indexPath != nil) else {
-            return }
-        
-        let cell = tableView.cellForRowAtIndexPath(indexPath!)
-        let centerDistance = abs(locationInView.y - cell!.center.y)
-
+        var indexPath = tableView.indexPathForRowAtPoint(locationInView)
         
         switch state{
         case UIGestureRecognizerState.Began:
             if  indexPath != nil {
                 
-                originalCellColor = cell?.backgroundColor
-                targetCell = (cell as! ItemTableViewCell)
+                self.initialIndexPath = indexPath
+                let cell = tableView.cellForRowAtIndexPath(indexPath!) as! ItemTableViewCell
+                originalCellColor = cell.backgroundColor
+                targetCell = cell
                 
                 if targetCell!.item!.showChildren {
                     detailViewController.toggleItemVisibility(indexPath!)
                 }
-                self.initialIndexPath = indexPath
-                let cell = tableView.cellForRowAtIndexPath(indexPath!) as! ItemTableViewCell
+
                 self.cellSnapshot = snapshotOfCell(cell)
                 var center = cell.center
                 
@@ -153,60 +153,16 @@ class GestureHandlers: NSObject {
             center.y = locationInView.y
             self.cellSnapshot!.center = center
             
-           
-            /* 
-             * TODO: Place here the code to see if it is a child or a brother
-             */
-            
             if ((indexPath != nil) && (indexPath != self.initialIndexPath)) {
                 
+                let cell = tableView.cellForRowAtIndexPath(indexPath!)
                 
                 self.targetCell?.backgroundColor = self.originalCellColor
                 self.targetCell = (cell as! ItemTableViewCell)
                 cell?.backgroundColor = UIColor.orangeColor()
-                canBeParent = true
-                
+                let centerDistance = abs(locationInView.y - cell!.center.y)
                 if  centerDistance < 7 {
-                    
-                
-                    let orderedInitialIndex = detailViewController.orderedViewModels.indexOf(detailViewController.visibleViewModels[self.initialIndexPath!.row]);
-                    let orderedFinalIndex = detailViewController.orderedViewModels.indexOf(detailViewController.visibleViewModels[indexPath!.row]);
-                    
-                swap(&detailViewController.visibleViewModels[indexPath!.row], &detailViewController.visibleViewModels[self.initialIndexPath!.row])
-                    
-                /*
-                 * Swap the item and all it's children
-                 */
-                let childrenList = detailViewController.orderedViewModels[orderedInitialIndex!].children
-                swap(&detailViewController.orderedViewModels[orderedFinalIndex!], &detailViewController.orderedViewModels[orderedInitialIndex!])
-                
-                 var i = 1
-                   
-                    
-                    for _ in  childrenList{
-                        
-                        if orderedFinalIndex!+i >= detailViewController.orderedViewModels.count {
-                            let itemToMove = detailViewController.orderedViewModels.removeAtIndex(orderedInitialIndex!+i)
-                            detailViewController.orderedViewModels.append(itemToMove)
-                        }else{
-                        
-                        swap(&detailViewController.orderedViewModels[orderedFinalIndex!+i], &detailViewController.orderedViewModels[orderedInitialIndex!+i])
-                        }
-                            i++;
-                    }
-                    
-                
-                    
-                detailViewController.tableView.moveRowAtIndexPath(self.initialIndexPath!, toIndexPath: indexPath!)
-                
-                
-                self.previousIndexPath = self.initialIndexPath
-                self.initialIndexPath = indexPath
-                canBeParent = false
-                    
-                }else {
-                    // Show some highlight of the cell
-                  
+                    swapItems(detailViewController, indexPath: indexPath)
                 }
                 
             }else {
@@ -217,10 +173,23 @@ class GestureHandlers: NSObject {
             
             targetCell?.backgroundColor = originalCellColor
             
-            var cell = tableView.cellForRowAtIndexPath(self.initialIndexPath!) as! ItemTableViewCell
+            let distanceToTarget = locationInView.y - targetCell!.center.y
             
-            let targetIndex = detailViewController.orderedViewModels.indexOf((targetCell?.item!)!)
+            if (distanceToTarget < 0 && initialIndexPath != indexPath) {
+                
+                if !targetCell!.item!.showChildren {
+                    //let previousIndexPath = initialIndexPath
+                    detailViewController.toggleItemVisibility(indexPath!)
+                    //indexPath = detailViewController.tableView.indexPathForCell(targetCell!)
+                    //initialIndexPath = previousIndexPath
+                }
+                
+                
+                swapItems(detailViewController, indexPath: indexPath)
+
+            }
             
+            let cell = tableView.cellForRowAtIndexPath(self.initialIndexPath!) as! ItemTableViewCell
             let itemViewModel = detailViewController.visibleViewModels[(initialIndexPath?.row)!]
             
             var parent: ItemViewModel?
@@ -245,18 +214,9 @@ class GestureHandlers: NSObject {
             
             
             if (indexPath != nil) && (indexPath != self.initialIndexPath) {
-            
-               let distanceToTarget = abs(abs(locationInView.y - targetCell!.center.y))
-             
-                
-                
-                if !targetCell!.item!.showChildren {
+               if !targetCell!.item!.showChildren {
                     detailViewController.toggleItemVisibility(indexPath!)
                 }
-                
-                
-                
-                
                 
                 detailViewController.visibleViewModels[indexPath!.row].children.insert(itemViewModel, atIndex: 0)
                 
@@ -267,7 +227,6 @@ class GestureHandlers: NSObject {
                 for i in modifiedViewModel.children {
                     updateItemIdentation(i, level: modifiedViewModel.level)
                 }
-                canBeParent = false
                 
                 detailViewController.buildOrderedViewModels()
                 
@@ -319,47 +278,70 @@ class GestureHandlers: NSObject {
                     parent1?.children.insert(itemViewModel, atIndex: index!+1)
                     itemViewModel.level = (parent1?.level)!+1
                 }
-                    
-                    
-                canBeParent = false
              
             }
-            
-
-            
-
-            
-    }
+        }
             detailViewController.buildOrderedViewModels()
             
             for i in itemViewModel.children {
                 updateItemIdentation(i, level: itemViewModel.level)
             }
             
-            tableView.reloadRowsAtIndexPaths([initialIndexPath!], withRowAnimation: .None)
-            cell.hidden = false
-            cell.alpha = 0.0
-            UIView.animateWithDuration(0.25, animations: { () in
-                self.cellSnapshot!.center = cell.center
-                self.cellSnapshot!.transform = CGAffineTransformIdentity
-                self.cellSnapshot!.alpha = 0.0
-                cell.alpha = 1.0
-                }, completion: { finished in
-                    if finished {
-                        self.initialIndexPath = nil
-                        self.cellSnapshot!.removeFromSuperview()
-                        self.cellSnapshot = nil
-                    }
-            })
+            if cellSnapshot != nil {
+                resetTableView(tableView, cell: cell)
+            }
             break
-            
-}
-        
-    
+           }
     }
     
-    static func swapItems() {
+    static func resetTableView(tableView: UITableView, cell: UITableViewCell){
+        tableView.reloadRowsAtIndexPaths([initialIndexPath!], withRowAnimation: .None)
+        cell.hidden = false
+        cell.alpha = 0.0
+        UIView.animateWithDuration(0.25, animations: { () in
+            self.cellSnapshot!.center = cell.center
+            self.cellSnapshot!.transform = CGAffineTransformIdentity
+            self.cellSnapshot!.alpha = 0.0
+            cell.alpha = 1.0
+            }, completion: { finished in
+                if finished {
+                    self.initialIndexPath = nil
+                    self.cellSnapshot!.removeFromSuperview()
+                    self.cellSnapshot = nil
+                }
+        })
+    }
+    
+    static func swapItems(detailViewController: ItemTableViewController, indexPath: NSIndexPath?) {
+        let orderedInitialIndex = detailViewController.orderedViewModels.indexOf(detailViewController.visibleViewModels[self.initialIndexPath!.row]);
+        let orderedFinalIndex = detailViewController.orderedViewModels.indexOf(detailViewController.visibleViewModels[indexPath!.row]);
         
+        swap(&detailViewController.visibleViewModels[indexPath!.row], &detailViewController.visibleViewModels[self.initialIndexPath!.row])
+        
+        /*
+        * Swap the item and all it's children
+        */
+        let childrenList = detailViewController.orderedViewModels[orderedInitialIndex!].children
+        swap(&detailViewController.orderedViewModels[orderedFinalIndex!], &detailViewController.orderedViewModels[orderedInitialIndex!])
+        
+        var i = 1
+        
+        
+        for _ in  childrenList{
+            
+            if orderedFinalIndex!+i >= detailViewController.orderedViewModels.count {
+                let itemToMove = detailViewController.orderedViewModels.removeAtIndex(orderedInitialIndex!+i)
+                detailViewController.orderedViewModels.append(itemToMove)
+            }else{
+                
+                swap(&detailViewController.orderedViewModels[orderedFinalIndex!+i], &detailViewController.orderedViewModels[orderedInitialIndex!+i])
+            }
+            i++;
+        }
+        
+        
+        detailViewController.tableView.moveRowAtIndexPath(self.initialIndexPath!, toIndexPath: indexPath!)
+        self.initialIndexPath = indexPath
     }
     
     static func updateItemIdentation(item: ItemViewModel, level: Int) {
