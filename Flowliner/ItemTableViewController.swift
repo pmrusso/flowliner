@@ -18,7 +18,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         return item.children.map(getOrderedItemList).reduce([item], combine: +)
     }
     
-    private func getOrderedItemViewModelList(item: ItemViewModel) -> [ItemViewModel] {
+    internal func getOrderedItemViewModelList(item: ItemViewModel) -> [ItemViewModel] {
         return item.children.map(getOrderedItemViewModelList).reduce([item], combine: +)
     }
     
@@ -54,15 +54,13 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
             
             var orderedIndex = startIndex!+1
             
-            for var i = startIndex!+1; i <= startIndex!+counter; i++, j++, orderedIndex++ {
+            for var i = startIndex!+1; i <= startIndex!+counter && orderedIndex < orderedViewModels.count; i++, j++, orderedIndex++ {
                 visibleViewModels.insert(orderedViewModels[orderedIndex], atIndex: indexPath.row+j)
                 let newIndexPath = NSIndexPath(forRow: indexPath.row+j, inSection: 0)
                 tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Fade)
                 if !orderedViewModels[orderedIndex].showChildren {
                     orderedIndex += getOrderedItemViewModelList(orderedViewModels[orderedIndex]).count-1
                 }
-                /*j++
-                orderedIndex++*/
             }
         }
     }
@@ -97,16 +95,12 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         
     }
     
-    // MARK: OutlineSelectionDelegate
-    
     func buildOrderedViewModels() {
         var orderedItemViewModels = [ItemViewModel]()
         for i in self.itemViewModels {
             orderedItemViewModels += getOrderedItemViewModelList(i)
         }
         
-        // TODO Change reload data to insert one at a time using depth-first approach
-        //self.orderedOutlineItems = orderedItems
         self.orderedViewModels = orderedItemViewModels
         
 
@@ -130,7 +124,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         }*/
     }
     
-    func insertNewItem(sender: AnyObject){
+    func addNewItem(sender: AnyObject){
         let newItem = Item(text: "New Item")
         let newItemViewModel = ItemViewModel(item: newItem, level: 0)
         self.itemViewModels.append(newItemViewModel)
@@ -152,9 +146,8 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         let longpress = UILongPressGestureRecognizer(target: self, action: "longPressGestureRecognized:")
         tableView.addGestureRecognizer(longpress)
         
-        let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewItem:")
+        let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addNewItem:")
         self.navigationItem.rightBarButtonItem = addButton
-        //self.navigationItem.leftBarButtonItem = self.editButtonItem()
     }
     
     func toggleItemVisibility(indexPath: NSIndexPath){
@@ -212,25 +205,23 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         return proposedDestinationIndexPath
     }
     
-    /*override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        self.toggleItemVisibility(indexPath)
-    }*/
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
+            
+            
+            cell.itemLabel?.hidden = true
+            cell.itemTextfield?.text = cell.itemLabel?.text
+            cell.itemTextfield?.hidden = false
+            cell.itemTextfield?.becomeFirstResponder()
+            
+            /*
+            * TODO: Maybe use a popup instead of a textfield...
+            */
+        }
+
+    }
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
-        let renameAction = UITableViewRowAction(style: .Normal, title: "Rename", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) in
-            if let cell = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
-                
-                
-                cell.itemLabel?.hidden = true
-                cell.itemTextfield?.text = cell.itemLabel?.text
-                cell.itemTextfield?.hidden = false
-                cell.itemTextfield?.becomeFirstResponder()
-                
-                /*
-                * TODO: Maybe use a popup instead of a textfield...
-                */
-            }
-        })
         
         let deleteAction = UITableViewRowAction(style: .Default, title: "Delete", handler:{ (action: UITableViewRowAction, indexPath: NSIndexPath) in
             if let _ = tableView.cellForRowAtIndexPath(indexPath) as! ItemTableViewCell? {
@@ -245,37 +236,7 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
             }
         })
         
-        return [renameAction,deleteAction]
+        return [deleteAction]
     }
     
-    // Override to support rearranging the table view.
-    /*override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-        print("move")
-        let movedItem = self.visibleViewModels[fromIndexPath.row]
-        self.visibleViewModels.removeAtIndex(fromIndexPath.row)
-        self.visibleViewModels.insert(movedItem, atIndex: toIndexPath.row)
-    }*/
-    
-    override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
-        print("move 2")
-    }
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }

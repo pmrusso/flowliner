@@ -113,7 +113,7 @@ class GestureHandlers: NSObject {
         let longPress = gestureRecognizer as! UILongPressGestureRecognizer
         let state = longPress.state
         let locationInView = longPress.locationInView(tableView)
-        var indexPath = tableView.indexPathForRowAtPoint(locationInView)
+        let indexPath = tableView.indexPathForRowAtPoint(locationInView)
         
         switch state{
         case UIGestureRecognizerState.Began:
@@ -173,20 +173,16 @@ class GestureHandlers: NSObject {
             
             targetCell?.backgroundColor = originalCellColor
             
-            let distanceToTarget = locationInView.y - targetCell!.center.y
+            // Check if the user drops the cell on the upper half of the target cell
             
-            if (distanceToTarget < 0 && initialIndexPath != indexPath) {
+            let distanceToTarget = locationInView.y - targetCell!.center.y
+            if (distanceToTarget < 0 && initialIndexPath != indexPath && indexPath != nil) {
                 
                 if !targetCell!.item!.showChildren {
-                    //let previousIndexPath = initialIndexPath
                     detailViewController.toggleItemVisibility(indexPath!)
-                    //indexPath = detailViewController.tableView.indexPathForCell(targetCell!)
-                    //initialIndexPath = previousIndexPath
                 }
                 
-                
                 swapItems(detailViewController, indexPath: indexPath)
-
             }
             
             let cell = tableView.cellForRowAtIndexPath(self.initialIndexPath!) as! ItemTableViewCell
@@ -214,23 +210,34 @@ class GestureHandlers: NSObject {
             
             
             if (indexPath != nil) && (indexPath != self.initialIndexPath) {
-               if !targetCell!.item!.showChildren {
+               
+                let movingCell = tableView.cellForRowAtIndexPath(initialIndexPath!)
+                
+                if !targetCell!.item!.showChildren {
                     detailViewController.toggleItemVisibility(indexPath!)
                 }
+                
                 
                 detailViewController.visibleViewModels[indexPath!.row].children.insert(itemViewModel, atIndex: 0)
                 
                 
-                let modifiedViewModel = detailViewController.visibleViewModels[indexPath!.row+1]
-                modifiedViewModel.level = detailViewController.visibleViewModels[indexPath!.row].level + 1
+                let modifiedViewModel = detailViewController.visibleViewModels[indexPath!.row]
+                itemViewModel.level = modifiedViewModel.level + 1
                 
-                for i in modifiedViewModel.children {
-                    updateItemIdentation(i, level: modifiedViewModel.level)
+                let indexOfItem = detailViewController.visibleViewModels.indexOf(itemViewModel)
+                detailViewController.visibleViewModels.removeAtIndex(indexOfItem!)
+                detailViewController.visibleViewModels.insert(itemViewModel, atIndex: indexPath!.row+1)
+                
+                
+                for i in itemViewModel.children {
+                    updateItemIdentation(i, level: itemViewModel.level)
                 }
+               
+                initialIndexPath = tableView.indexPathForCell(movingCell!)
+                let targetIndexPath = NSIndexPath(forRow: indexPath!.row+1, inSection: 0)
+                tableView.moveRowAtIndexPath(initialIndexPath!, toIndexPath: targetIndexPath)
+                tableView.reloadRowsAtIndexPaths([targetIndexPath], withRowAnimation: .None)
                 
-                detailViewController.buildOrderedViewModels()
-                
-            
             }else {
                 
                 if (initialIndexPath?.row)!-1 < 0 {
@@ -321,14 +328,12 @@ class GestureHandlers: NSObject {
         /*
         * Swap the item and all it's children
         */
-        let childrenList = detailViewController.orderedViewModels[orderedInitialIndex!].children
+        let childrenList = detailViewController.getOrderedItemViewModelList(detailViewController.orderedViewModels[orderedInitialIndex!])
         swap(&detailViewController.orderedViewModels[orderedFinalIndex!], &detailViewController.orderedViewModels[orderedInitialIndex!])
         
         var i = 1
         
-        
-        for _ in  childrenList{
-            
+        for i; i < childrenList.count-1; {
             if orderedFinalIndex!+i >= detailViewController.orderedViewModels.count {
                 let itemToMove = detailViewController.orderedViewModels.removeAtIndex(orderedInitialIndex!+i)
                 detailViewController.orderedViewModels.append(itemToMove)
