@@ -116,12 +116,6 @@ class ItemTableViewController: UITableViewController, OutlineSelectionDelegate {
         self.visibleViewModels = self.orderedViewModels
         tableView.reloadData()
         
-        // Currently not working, gotta figure out why
-        /*for var index = 0; index < orderedItems.count; ++index {
-            self.outlineItems.append(orderedItems[index])
-            let indexPaths = [NSIndexPath(forRow: index, inSection: 0)]
-            tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Right)
-        }*/
     }
     
     func addNewItem(sender: AnyObject){
